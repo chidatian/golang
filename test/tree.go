@@ -58,7 +58,6 @@ func (this *Tree) Select() {
 func (this *Tree) Search(v int) *Node{
 	cur := this.Root
 	for {
-
 		if v < cur.Value {
 			cur = cur.Left
 			if cur == nil {
@@ -98,60 +97,55 @@ func (this *Tree) Max() *Node{
 }
 // 删除一个节点
 func (this *Tree) Delete(v int) {
-	fmt.Printf("del %d\n",v)
-	cur := this.Root
-	TAG:
-	for {
-		if v < cur.Value {
-			if cur.Left == nil {
-				return
-			}
-			cur = cur.Left
-		} else if v > cur.Value {
-			if cur.Right == nil {
-				return
-			}
-			cur = cur.Right
-		} else {
-			if cur.Left == nil && cur.Right == nil {
-				if cur.Parent.Left == cur {
-					cur.Parent.Left = nil
-				} else {
-					cur.Parent.Right = nil
-				}
-				break
-			} else if cur.Left == nil && cur.Right != nil {
-				*cur = *(cur.Right)
-				break
-			} else if cur.Left != nil && cur.Right == nil {
-				*cur = *(cur.Left)
-				break
+	fmt.Printf("del: %d\n",v)
+	var (
+		mapDel func (n *Node)
+		cur = this.Search(v)
+	)
+	mapDel = func (cur *Node) {
+		if cur == nil {
+			return
+		}
+		if cur.Left == nil && cur.Right == nil {
+			if cur.Parent.Left == cur {
+				cur.Parent.Left = nil
 			} else {
-				curMin := cur
-				for {
-					if curMin.Left != nil {
-						curMin = curMin.Left
-					} else {
-						fmt.Println(cur)
-						fmt.Println(cur.Left)
-						fmt.Println(cur.Right)
-						fmt.Println(curMin)
-						fmt.Println(curMin.Left)
-						fmt.Println(curMin.Right)
-						*cur = *curMin
-						fmt.Println(cur.Parent)
-						fmt.Println(cur.Parent.Left)
-						fmt.Println(cur.Parent.Right)
-						break TAG
-					}
+				cur.Parent.Right = nil
+			}
+		} else if cur.Left == nil && cur.Right != nil {
+			cur.Right.Parent = cur.Parent
+			if cur.Parent.Left == cur {
+				cur.Parent.Left = cur.Right
+			} else {
+				cur.Parent.Right = cur.Right
+			}
+		} else if cur.Left != nil && cur.Right == nil {
+			cur.Left.Parent = cur.Parent
+			if cur.Parent.Left == cur {
+				cur.Parent.Left = cur.Left
+			} else {
+				cur.Parent.Right = cur.Left
+			}
+		} else {
+			fmt.Println("both")
+			curs := cur.Right
+			for {
+				if curs.Left != nil {
+					curs = curs.Left
+				} else {
+					break
 				}
 			}
+			cur.Value = curs.Value
+			mapDel(curs)
 		}
 	}
+	mapDel(cur)
 }
 // 修改一个节点
-func (this *Tree) Edit(v int) {
-
+func (this *Tree) Edit(v int, v2 int) {
+	this.Insert(v2)
+	this.Delete(v)
 }
 func main() {
 	var t Tree
@@ -164,12 +158,15 @@ func main() {
 	t.Insert(95)
 	t.Insert(110)
 	t.Select()
-	val := t.Search(95)
-	fmt.Println(val)
-	t.Delete(90)
+	t.Delete(80)
 	t.Select()
+	fmt.Println("---------------")
+	val := t.Search(110)
+	fmt.Println(val)
 	fmt.Println(t.Min())
 	fmt.Println(t.Root.Value)
 	fmt.Println(t.Root.Left.Value)
 	fmt.Println(t.Root.Right.Value)
+	t.Edit(80,125)
+	t.Select()
 }
