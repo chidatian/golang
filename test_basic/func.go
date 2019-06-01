@@ -10,6 +10,6 @@ func main() {
 	fmt.Println(s)
 }
 
-func sum(a int, b int) int {
-	return a+b
+func sum(a int, b int) (int,int) {
+	return a+b,10
 }
