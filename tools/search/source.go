@@ -40,13 +40,14 @@ type (
 		Copyright string `xml:"copyright"`
 		Generator string `xml:"generator"`
 		LastBuildDate string `xml:"lastBuildDate"`
-		Images Image `xml:"image"`
+		Img Image
 		Items []Item `xml:"item"`
 	}
 
 	Rss struct {
 		XMLName xml.Name `xml:"rss"`
-		Chann Channel `xml:"channel"`
+		Chann Channel
+		hasErr bool
 	}
 )
 
@@ -54,7 +55,7 @@ func NewRss(xm string) Rss{
 	var res Rss
 	err := xml.Unmarshal([]byte(xm), &res)
 	if err != nil {
-		panic("source.go errors line on : 36")
+		return Rss{hasErr:true}
 	}
 	return res
 }

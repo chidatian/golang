@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	search.Run("abc")
+	search.Run("When")
 }

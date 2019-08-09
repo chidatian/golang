@@ -18,9 +18,11 @@ func main() {
 		}
 	}()
 	// 填充数据
-	for i := 0; i < 10; i++ {
-		data <- i
-	}
+	go func() {
+		for i := 0; i < 10; i++ {
+			data <- i
+		}
+	}()
 
 	// 循环打印协程的个数
 	for {
