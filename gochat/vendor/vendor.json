@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "dKO1mwQoRQADmqA5+lvT9iqBRYo=",
+			"path": "github.com/astaxie/goredis",
+			"revision": "61d5b0817ce6faf9318eaabd66c9e60f28f97e1a",
+			"revisionTime": "2012-07-19T08:50:02Z"
+		}
+	],
+	"rootPath": "gochat"
+}
