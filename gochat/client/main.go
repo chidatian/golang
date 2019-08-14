@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"gochat/conf"
+	"gochat/client/message"
 	"net"
-	"encoding/json"
 )
 
 type Client struct {
 	Config conf.Configure
 	Conn net.Conn
+	Msg message.Msg
 }
 
 func (this *Client) InitConn() {
@@ -22,6 +23,7 @@ func (this *Client) InitConn() {
 }
 
 func (this *Client) SendData(info string) {
+	// Write(b []byte) (n int, err error)
 	_, err := this.Conn.Write([]byte(info))
 	if err != nil {
 		panic(err)
@@ -30,12 +32,14 @@ func (this *Client) SendData(info string) {
 
 func (this *Client) Run() {
 	this.InitConn()
-	// Write(b []byte) (n int, err error)
+	s := this.Msg.InitBuf()
 	var info string
 	for {
-		fmt.Scanf("%s\n", &info)
-		fmt.Println(info)
+		fmt.Scanf("%s", &info)
 		this.SendData(info)
+		if info == "exit" {
+			break
+		}
 	}
 }
 

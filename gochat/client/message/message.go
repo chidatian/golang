@@ -1,16 +1,18 @@
 package message
 
 import (
-	"encoding/json"
+	"bufio"
+	"os"
 )
 
 type Msg struct {}
 
-func (this *Msg) GetConn(host string) net.Conn{
-	conn, err := net.Dial("tcp", host)
+func (this *Msg) InitBuf() string{
+	var input *bufio.Reader
+	input = bufio.NewReader(os.Stdin)
+	content, err := input.ReadString('\n')
 	if err != nil {
-		// handle error
 		panic(err)
 	}
-	return conn
+	return content
 }
