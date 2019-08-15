@@ -3,13 +3,16 @@ package main
 import (
 	"fmt"
 	"gochat/conf"
-	"gochat/client/message"
+	"gochat/common/message"
 	"net"
+	"bufio"
+	"os"
 )
 
 type Client struct {
 	Config conf.Configure
 	Conn net.Conn
+	Input *bufio.Reader
 	Msg message.Msg
 }
 
@@ -22,22 +25,55 @@ func (this *Client) InitConn() {
 	}
 }
 
-func (this *Client) SendData(info string) {
+func (this *Client) SendData(info []byte) {
 	// Write(b []byte) (n int, err error)
-	_, err := this.Conn.Write([]byte(info))
+	number := this.Msg.Uint32ToByte(info)
+	_, err := this.Conn.Write(number)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = this.Conn.Write(info)
 	if err != nil {
 		panic(err)
 	}
 }
 
+func (this *Client) ReadData() string{
+	resp := make([]byte, 10240)
+	number := make([]byte, 5)
+	// Read(b []byte) (n int, err error)
+	_, err := this.Conn.Read(number[:4])
+	right := this.Msg.ToUint32(number[:4])
+	if err != nil {
+		panic(err)
+	}
+
+	n, err := this.Conn.Read(resp[:right])
+	if err != nil {
+		panic(err)
+	}
+	return string(resp[:n])
+}
+
+func (this *Client) Response() {
+	for {
+		res := this.ReadData()
+		fmt.Println(res)
+	}
+}
+
 func (this *Client) Run() {
 	this.InitConn()
-	s := this.Msg.InitBuf()
-	var info string
+	go this.Response()
 	for {
-		fmt.Scanf("%s", &info)
+		// func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)
+		info, _, err := this.Input.ReadLine()
+		if err != nil {
+			break
+		}
 		this.SendData(info)
-		if info == "exit" {
+		if string(info) == "exit" {
 			break
 		}
 	}
@@ -46,6 +82,7 @@ func (this *Client) Run() {
 var client Client
 
 func main() {
+	client.Input = bufio.NewReader(os.Stdin)
 	client.Config = conf.ConfigureInfo
 	client.Run()
 }
