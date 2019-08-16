@@ -2,9 +2,18 @@ package message
 
 import (
 	"encoding/binary"
+	// "encoding/json"
 )
 
 type Msg struct {}
+
+func (this *Msg) encode(array interface{}) string {
+	return " "
+}
+
+func (this *Msg) decode(json string) interface{} {
+	return nil
+}
 
 func (this *Msg) Uint32ToByte(info []byte) []byte{
     var bytes [4]byte

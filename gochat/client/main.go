@@ -66,15 +66,21 @@ func (this *Client) Response() {
 func (this *Client) Run() {
 	this.InitConn()
 	go this.Response()
+	var isUserName bool = true
+	// fmt.Println("Please enter your username: ")
 	for {
 		// func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)
 		info, _, err := this.Input.ReadLine()
 		if err != nil {
-			break
+			continue
 		}
 		this.SendData(info)
 		if string(info) == "exit" {
 			break
+		}
+		if isUserName {
+			isUserName = false
+			fmt.Printf("Welcome to my home ------ [ %s ] ------ You can say now\n", string(info))
 		}
 	}
 }
