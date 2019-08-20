@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"image/color"
+	"github.com/fatih/color"
 )
 
 func main() {
-	// func (c RGBA) RGBA() (r, g, b, a uint32)
-	var c color.RGBA
-	r, g, b, a := c.RGBA()
-	fmt.Println(r, g, b, a)
+	color.Red("Prints %s in blue.", "text")
+	color.Yellow("Prints %s in blue.", "text")
+	color.Green("Prints %s in blue.", "text")
+	color.Blue("Prints %s in blue.", "text")
 }

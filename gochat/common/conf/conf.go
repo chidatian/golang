@@ -23,7 +23,7 @@ type (
 var ConfigureInfo Configure
 
 func init() {
-	var file string = "../conf/conf.json"
+	var file string = "./conf/conf.json"
 	f, err := os.Open(file)
 	if err != nil {
 		panic(err)

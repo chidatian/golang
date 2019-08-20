@@ -1,19 +1,31 @@
-package main
+package server
 
 import (
 	"fmt"
 	"github.com/astaxie/goredis"
-	"gochat/conf"
-	"gochat/server/user"
+	"github.com/fatih/color"
+	"gochat/common/message"
+	"gochat/common/conf"
 	"net"
 )
 
 type Server struct {
-	Config conf.Configure
 	Redis goredis.Client
-	User map[int]*user.User
+	Msg message.Msg
+	Config conf.Configure
 	Message chan string
-	LinkNum int
+	User map[uint16]*User
+	LinkPool *Pool
+}
+
+func NewServer() *Server {
+	return &Server{
+		Redis : goredis.Client{Addr: conf.ConfigureInfo.Redis.Host, Db: 0},
+		Config : conf.ConfigureInfo,
+		Message : make(chan string, 1),
+		User : make(map[uint16]*User),
+		LinkPool : NewPool(),
+	}
 }
 
 func (this *Server) Response() {
@@ -24,32 +36,33 @@ func (this *Server) Response() {
 				if item == nil {
 					continue	
 				}
-				item.SendData([]byte(info))
+				this.SendData(item.Index, []byte(info))
 			}
 		}
 	}
 }
 
-func (this *Server) ResponseUsers(index int) {
+func (this *Server) ResponseUsers(index uint16) {
 	var users string = "Online username: \n"
 	for _, item := range this.User {
 		if item == nil || item.Name == ""{
-			continue	
+			continue
 		}
 		users = users + " [ " + item.Name + " ] "
 	}
 	users = users + "\nPlease enter your username: "
-	this.User[index].SendData([]byte(users))
+	this.SendData(index, []byte(users))
 }
 
-func (this *Server) HandleConnection(index int) {
-	defer this.User[index].Conn.Close()
+func (this *Server) HandleConnection(index uint16) {
+	conn := this.LinkPool.Get(index)
+	defer conn.Close()
 	this.ResponseUsers(index)
 	var info string
 	var err error
 	var isUserName bool = true
 	for {
-		info, err = this.User[index].ReadData()
+		info, err = this.ReadData(index)
 		if err != nil {
 			break
 		}
@@ -64,11 +77,12 @@ func (this *Server) HandleConnection(index int) {
 		this.Message <- fmt.Sprintf("[ %s ] : %s", this.User[index].Name, info)
 	}
 	this.User[index] = nil
+	this.LinkPool.Del(index)
 }
 
-func (this *Server) Run(tcp string, host string) {
-	fmt.Printf("Server on %s\n", host)
-	ln, err := net.Listen(tcp, host)
+func (this *Server) Run() {
+	color.Green("Server on %s\n", this.Config.Server.Host)
+	ln, err := net.Listen("tcp", this.Config.Server.Host)
 	defer ln.Close()
 	if err != nil {
 		// handle error
@@ -81,25 +95,9 @@ func (this *Server) Run(tcp string, host string) {
 			// handle error
 			continue
 		}
-		this.LinkNum++
-		this.User[this.LinkNum] = &user.User{Conn: conn}
-		fmt.Printf("[ CLIENT %d ] %T\n", this.LinkNum, conn)
-		go this.HandleConnection(this.LinkNum)
+		index := this.LinkPool.Set(conn)
+		this.User[index] = &User{Index : index}
+		color.Yellow("[ CLIENT %d ] %T\n", index, conn)
+		go this.HandleConnection(index)
 	}
-}
-
-var server Server
-
-func main() {
-	server.Run("tcp", server.Config.Server.Host)
-}
-
-func init() {
-	server.LinkNum = 0
-	server.User = make(map[int]*user.User)
-	server.Message = make(chan string, 1)
-	server.Config = conf.ConfigureInfo
-	server.Redis.Addr = server.Config.Redis.Host
-	server.Redis.Db = 0
-	// redis.Set("chat", []byte("test"))
 }
