@@ -1,3 +1,24 @@
+<<<<<<< HEAD
+package main
+
+import (
+	"fmt"
+	"regexp"
+)
+
+func test() {
+	var s string = "chidatian"
+	var pattern string = "da"
+	isB, err := regexp.MatchString(pattern, s)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(isB)
+}
+
+func main() {
+	test()
+=======
 package main
 
 import (
@@ -37,4 +58,5 @@ func test2() {
 
 func main() {
 	test2()
+>>>>>>> 65888be0467c07f28b57cd4073746ad38fcc0782
 }
