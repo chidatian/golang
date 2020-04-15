@@ -9,6 +9,34 @@ func main() {
 	fmt.Println(arr)
 	qsort_children(arr)
 	fmt.Println(arr)
+	/***********************/
+	var arr2 []int = []int{23, 46, 0, 8, 111, 18}
+	qsort2(arr2)
+	fmt.Println(arr2)
+	/***********************/
+	var arr3 []int = []int{1,2,3,4,5}
+	fmt.Println(arr3[:2])
+	fmt.Println(arr3[2:])
+}
+
+func qsort2(arr []int) {
+	n := len(arr)
+	if  n <= 1 {
+		return
+	}
+	l, m, r, i := 0, arr[0], n - 1, 1
+	for l < r {
+		if arr[i] < m {
+			arr[l], arr[i] = arr[i], arr[l]
+			l++
+			i++
+		} else {
+			arr[r], arr[i] = arr[i], arr[r]
+			r--
+		}
+	}
+	qsort2(arr[:l])
+	qsort2(arr[l+1:])
 }
 
 /* func qsort(arr []int){
