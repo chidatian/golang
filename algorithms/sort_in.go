@@ -3,14 +3,21 @@ package main
 import "fmt"
 
 func main() {
-	a1 := []int{1, 2, 3, 4, 5}
-	a2 := a1
+	// sortA(3)
+	sortB()
+}
 
-	a1 = append(a1[:1], a1[2:]...)
-
-	fmt.Println(a2)
-	fmt.Println(a1)
-	sortA(3)
+func sortB() {
+	var a []int = []int{3,2,5,1,8}
+	var j int
+	for i := 1; i < len(a); i ++ {
+		b := a[i]
+		for j = i-1; j >= 0 && a[j] > b; j-- {
+			a[j+1] = a[j]
+		}
+		a[j+1] = b
+	}
+	fmt.Println(a)
 }
 
 func sortA(b int) {
